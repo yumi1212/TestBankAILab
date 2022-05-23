@@ -8,6 +8,8 @@ QUESTIONING TO ENSURE HUMAN LIKE QUALITY WITH MACHINE LEARNING
   <summary>Table of Contents</summary>
   <ol>
     <li><a href="#overview">Overview</a></li>
+    <li><a href="#data-collection">Data Collection</a></li>
+    <li><a href="#data-cleaning">Data Cleaning</a></li>
     <li><a href="#eda">EDA</a></li>
       <ol>
         <li>
@@ -17,25 +19,25 @@ QUESTIONING TO ENSURE HUMAN LIKE QUALITY WITH MACHINE LEARNING
           <a href="#distributions-of-sme-selections">Distributions of SME Selection</a>
         </li>
         <li>
-          <a href="#pos-tagging">POS Tagging</a>
+          <a href="#pos-tagging">Part of Speech(POS) Tagging</a>
         </li>
         <li>
-          <a href="#Named-Entity-Recognition">Named Entity Recognition</a>
+          <a href="#named-entity-recognition">Named Entity Recognition(NER)</a>
         </li>
         <li>
-          <a href="#Post-editing-Distribution">Post Edited Distribution</a>
+          <a href="#post-editing-distribution">Post Edited Distribution</a>
         </li>
       </ol>
-    <li><a href="#Modeling">Modeling</a></li>
+    <li><a href="#model-architechture">Model Architechture</a></li>
       <ol>
         <li>
-          <a href="#CNN">CNN</a>
+          <a href="#cnn">CNN</a>
         </li>
         <li>
-          <a href="#LSTM">LSTM</a>
+          <a href="#lstm">LSTM</a>
         </li>
       </ol>
-    <li><a href="#Result">Result</a></li>
+    <li><a href="#model-performance">Model Performance</a></li>
     <li><a href="#acknowledgements">Acknowledgements</a></li>
   </ol>
 </details>
@@ -53,7 +55,48 @@ chain machine learning (ML) models for selection &amp; editing of pre AI generat
 Finally, we identify &amp; propose the first selection step in the daisy chain using ML with 90+% accuracy and provide analytical
 guidance for development of second editing step.
 
+<!-- data-collection -->
+## Data Collection
+In order to perform a wider and larger experiment to validate our first claim we chose five
+large books as the seed dataset. Numerous AI test questions have automatically been generated using these books. 
+The proprietary BenchmarkAI method for NQG is based on Item generation techniques, 10 namely, “With weak theory, a
+combination of outcomes from research, theory, and experience provide the guidelines
+necessary for identifying and manipulating the elements in a model that yield generated
+items.” It's suitable for broad content domains where few theoretical descriptions exist on
+the knowledge and skills required to solve test items. The results of BenchmarkAI
+questions are evaluated by human SMEs to identify quality questions. For our second
+claim we devise an analytical method and let the SME edit and fix the selected questions
+to improve the quality of selected questions. We then present the pattern of edits in terms
+of structure and syntax. For our third claim we propose a daisy chain architecture to first
+phase post-process the AI test bank questions.
  
+<!-- data-cleaning -->
+## Data Cleaning
+
+```
+# Make it lowercase and remove unnecessary punctuation
+def clean_text(text):
+    '''Make text lowercase, remove text in square brackets,remove links,remove punctuation
+    and remove words containing numbers.'''
+    text = str(text).lower()
+    text = re.sub('&nbsp', ' ', text) #error in 'saved.question'
+    text = re.sub('\[.*?\]', '', text)
+    text = re.sub('https?://\S+|www\.\S+', '', text)
+    text = re.sub('<.*?>+', '', text)
+    text = re.sub('[%s]' % re.escape(string.punctuation), '', text)
+    text = re.sub('\n', '', text)
+    text = re.sub('\w*\d\w*', '', text)
+    return text
+```
+
+```
+# Remove stopwords
+ def remove_stopwords(text):
+    text = ' '.join(word for word in text.split(' ') if word not in stop_words)
+    return text
+```
+
+
 <!-- EDA -->
 ## EDA
 
@@ -72,7 +115,7 @@ guidance for development of second editing step.
  #### POS tagging
  <img src = "https://github.com/yumi1212/TestBankAILab/blob/main/Plots/POS%20Tagging.png" width = "650" title = "POS tagging">
 
- <!-- Named-Entity-Recognition --> 
+ <!-- named-entity-recognition --> 
  #### Named Entity Recognition
  <img src = "https://github.com/yumi1212/TestBankAILab/blob/main/Plots/NER.png" width = "650" title = "NER">
 
@@ -81,22 +124,46 @@ guidance for development of second editing step.
  <img src = "https://github.com/yumi1212/TestBankAILab/blob/main/Plots/Post-editing.png" width = "650" title = "Post-editing Disttribution">
  
  
-<!-- Modeling -->
-## Modeling
+<!-- model-architechture -->
+## Model Architechture
 
- <!-- CNN -->
+ <!-- cnn -->
  #### CNN
  <img src = "https://github.com/yumi1212/TestBankAILab/blob/main/Plots/CNN.png" width = "650" title = "CNN">
+ This figure showcases a CNN-based (Convolution Neural Network) selection model for
+ selection of a NQG post-processing layer to delivery that a SME would consider high
+ quality. The model is a sequential CNN model from keras with an initial embedding layer
+ of dim 200 followed by a convolution layer and max pooling. There is a 10-neuron dense
+ layer with a sigmoid output unit. The training loss under experiment is the binary cross
+ entropy accuracy.
  
- <!-- LSTM -->
+ <!-- lstm -->
  #### LSTM
  <img src = "https://github.com/yumi1212/TestBankAILab/blob/main/Plots/LSTM.png" width = "650" title = "LSTM">
- 
-<!-- Result -->
-## Result
+ This figure shows a LSTM-based selection model of NQG post-processing layer to achieve
+ the same goal. The model is a keras sequential ANN with 128 size input embedding,
+ followed by 128 size LSTM layer and sigmoid output unit. Training loss under experiment
+ is once again binary cross entropy accuracy.
+
+<!-- model-performance -->
+## Model Performance
+
 #### BLEU 
+BLEU (bilingual evaluation understudy) is an algorithm for evaluating the quality of text
+which has been machine-translated from one natural language to another. Quality is
+considered to be the correspondence between a machine's output and that of a human:
+"the closer a machine translation is to a professional human translation, the better it is"; –
+this is the central idea behind BLEU. BLEUwas one of the first metrics to claim a high
+correlation with human judgements of quality, and remains one of the most popular
+automated and inexpensive metrics. But bleu metric is limited and a necessary but not
+sufficient condition to SME acceptance. 
+<img src = "https://github.com/yumi1212/TestBankAILab/blob/main/Plots/Accuracy.png" width = "650" title = "Bleu">
+As per Table 3 our post
+processing step identifies a small improvement in Bleu score of ~0.44 (2.4%) as well in
+edit step, but we consider this as a lower floor due to the very nature of ignoring
+syntactical and semantic correctness in bleu metric for select + edit step post processing.
 #### Accuracy
-<img src = "https://github.com/yumi1212/TestBankAILab/blob/main/Plots/Accuracy.png" width = "650" title = "LSTM">
+<img src = "https://github.com/yumi1212/TestBankAILab/blob/main/Plots/Accuracy.png" width = "650" title = "Accuracy">
 
 
 <!-- ACKNOWLEDGEMENTS -->
