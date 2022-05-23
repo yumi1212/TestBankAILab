@@ -1,7 +1,6 @@
 # TestBankAILab
 
-POST PROCESSING SELECTION OF AUTOMATIC ITEM GENERATION IN 
-QUESTIONING TO ENSURE HUMAN LIKE QUALITY WITH MACHINE LEARNING
+Identify Patterns of Sentence Structure by Machine Learning
 
 <!-- TABLE OF CONTENTS -->
 <details open="open">
