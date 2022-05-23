@@ -68,6 +68,9 @@ claim we devise an analytical method and let the SME edit and fix the selected q
 to improve the quality of selected questions. We then present the pattern of edits in terms
 of structure and syntax. For our third claim we propose a daisy chain architecture to first
 phase post-process the AI test bank questions.
+
+  - Note: The data that support the findings of this study are available from the corresponding author, CM, upon reasonable request.
+    Request Email: hsu.yuwei@northeastern.edu
  
 <!-- data-cleaning -->
 ## Data Cleaning
